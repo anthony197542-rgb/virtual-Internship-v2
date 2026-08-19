@@ -1,0 +1,128 @@
+import { useState } from 'react'
+import { FiX } from 'react-icons/fi'
+
+function AuthModal({ onClose, onSubmit, onGuestLogin }) {
+  const [mode, setMode] = useState('login')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    setError('')
+
+    if (!email.includes('@')) {
+      setError('Please enter a valid email address.')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.')
+      return
+    }
+
+    onSubmit({
+      email,
+      password,
+      mode,
+    })
+  }
+
+  const switchMode = () => {
+    setMode((currentMode) => (
+      currentMode === 'login' ? 'register' : 'login'
+    ))
+    setError('')
+  }
+
+  return (
+    <div
+      className="modal-backdrop"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose()
+        }
+      }}
+    >
+      <section className="auth-modal">
+        <button
+          className="modal-close"
+          onClick={onClose}
+          aria-label="Close authentication modal"
+        >
+          <FiX />
+        </button>
+
+        <span className="modal-mark">✦</span>
+
+        <h2>
+          {mode === 'login'
+            ? 'Welcome back'
+            : 'Start your journey'}
+        </h2>
+
+        <p>
+          {mode === 'login'
+            ? 'Pick up where you left off.'
+            : 'Create an account and make learning a habit.'}
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <label>
+            Email
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@example.com"
+            />
+          </label>
+
+          <label>
+            Password
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="At least 6 characters"
+            />
+          </label>
+
+          {error && (
+            <div className="form-error">
+              {error}
+            </div>
+          )}
+
+          <button className="form-button" type="submit">
+            {mode === 'login'
+              ? 'Log in'
+              : 'Create account'}
+          </button>
+        </form>
+
+        <button
+          className="guest-button"
+          type="button"
+          onClick={onGuestLogin}
+        >
+          Continue as guest
+        </button>
+
+        <p className="auth-switch">
+          {mode === 'login'
+            ? 'New to Summarist?'
+            : 'Already have an account?'}
+
+          <button type="button" onClick={switchMode}>
+            {mode === 'login'
+              ? 'Create account'
+              : 'Log in'}
+          </button>
+        </p>
+      </section>
+    </div>
+  )
+}
+
+export default AuthModal
