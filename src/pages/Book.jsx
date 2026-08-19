@@ -21,11 +21,10 @@ const fallbackBook = {
   authorDescription: 'James Clear is an author and speaker focused on habits and continuous improvement.',
 }
 
-function Book() {
+function Book({ user, subscription, onLogin, library, onToggleLibrary }) {
   const { id } = useParams()
   const navigate = useNavigate()
   const [book, setBook] = useState(null)
-  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     const loadBook = async () => {
@@ -41,12 +40,19 @@ function Book() {
     loadBook()
   }, [id])
 
+  const saved = library?.some((item) => item.id === book?.id) || false
+
   if (!book) {
     return <main className="content"><p className="kicker">LOADING BOOK</p><h1>Preparing your summary...</h1></main>
   }
 
   const handleRead = () => {
-    if (book.subscriptionRequired) {
+    if (!user) {
+      onLogin()
+      return
+    }
+
+    if (book.subscriptionRequired && subscription === 'basic') {
       navigate('/choose-plan')
       return
     }
@@ -86,7 +92,7 @@ function Book() {
             </button>
             <button
               className={saved ? 'save-button saved' : 'save-button'}
-              onClick={() => setSaved((current) => !current)}
+              onClick={() => user ? onToggleLibrary(book) : onLogin()}
             >
               <FiBookmark /> {saved ? 'Saved to library' : 'Add to library'}
             </button>

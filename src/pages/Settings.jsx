@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom'
 import { FiLogIn, FiUser } from 'react-icons/fi'
 
-function Settings() {
-  const user = readUser()
-  const plan = localStorage.getItem('summarist-plan') || 'basic'
+function Settings({ user, subscription = 'basic', onLogin }) {
+  const plan = subscription
 
   if (!user) {
     return (
@@ -12,9 +11,9 @@ function Settings() {
           <div className="settings-art"><FiUser /></div>
           <h1>Your account, your pace.</h1>
           <p>Log in to see your subscription and account details.</p>
-          <Link className="dark-button" to="/">
+          <button className="dark-button" type="button" onClick={onLogin}>
             Log in <FiLogIn />
-          </Link>
+          </button>
         </div>
       </main>
     )
@@ -59,14 +58,6 @@ function Settings() {
       </section>
     </main>
   )
-}
-
-function readUser() {
-  try {
-    return JSON.parse(localStorage.getItem('summarist-user'))
-  } catch {
-    return null
-  }
 }
 
 export default Settings

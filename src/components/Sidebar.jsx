@@ -5,14 +5,12 @@ const navigationItems = [
   { to: '/for-you', label: 'For you', icon: FiHome },
   { to: '/library', label: 'My library', icon: FiBookmark },
   { label: 'Highlights', icon: FiStar },
-  { label: 'Search', icon: FiSearch },
+  { to: '/search', label: 'Search', icon: FiSearch },
   { to: '/settings', label: 'Settings', icon: FiSettings },
   { label: 'Help & support', icon: FiHelpCircle },
 ]
 
-function Sidebar({ onLogin }) {
-  const user = readUser()
-
+function Sidebar({ onLogin, onLogout, user }) {
   return (
     <aside className="sidebar">
       <Link className="logo" to="/">
@@ -50,10 +48,7 @@ function Sidebar({ onLogin }) {
           <button
             className="side-link logout"
             type="button"
-            onClick={() => {
-              localStorage.removeItem('summarist-user')
-              window.location.reload()
-            }}
+            onClick={onLogout}
           >
             <FiLogOut />
             Log out
@@ -67,14 +62,6 @@ function Sidebar({ onLogin }) {
       </div>
     </aside>
   )
-}
-
-function readUser() {
-  try {
-    return JSON.parse(localStorage.getItem('summarist-user'))
-  } catch {
-    return null
-  }
 }
 
 export default Sidebar

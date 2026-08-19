@@ -2,14 +2,12 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiCheck, FiChevronDown } from 'react-icons/fi'
 
-function ChoosePlan() {
+function ChoosePlan({ subscription = 'basic', onPlanChange = () => { } }) {
   const navigate = useNavigate()
   const [yearly, setYearly] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState(() => localStorage.getItem('summarist-plan') || 'basic')
 
   const choosePlan = (plan) => {
-    setSelectedPlan(plan)
-    localStorage.setItem('summarist-plan', plan)
+    onPlanChange(plan)
     navigate('/settings')
   }
 
@@ -45,7 +43,7 @@ function ChoosePlan() {
           features={['Daily selected summary', 'Limited book library', 'Read summaries']}
           button="Current plan"
           muted
-          selected={selectedPlan === 'basic'}
+          selected={subscription === 'basic'}
           onClick={() => choosePlan('basic')}
         />
         <PlanCard
@@ -54,9 +52,9 @@ function ChoosePlan() {
           period="/ month"
           description="For curious minds who want the whole library."
           features={['Unlimited book summaries', 'Audio briefcasts', 'Save to your library', 'Personalized recommendations']}
-          button={selectedPlan === (yearly ? 'premium-plus' : 'premium') ? 'Current plan' : 'Start learning'}
+          button={subscription === (yearly ? 'premium-plus' : 'premium') ? 'Current plan' : 'Start learning'}
           featured
-          selected={selectedPlan === (yearly ? 'premium-plus' : 'premium')}
+          selected={subscription === (yearly ? 'premium-plus' : 'premium')}
           onClick={() => choosePlan(yearly ? 'premium-plus' : 'premium')}
         />
         <PlanCard

@@ -7,7 +7,7 @@ function AuthModal({ onClose, onSubmit, onGuestLogin }) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
 
@@ -21,11 +21,13 @@ function AuthModal({ onClose, onSubmit, onGuestLogin }) {
       return
     }
 
-    onSubmit({
+    const result = await onSubmit({
       email,
       password,
       mode,
     })
+
+    if (result) setError(result)
   }
 
   const switchMode = () => {
@@ -104,7 +106,10 @@ function AuthModal({ onClose, onSubmit, onGuestLogin }) {
         <button
           className="guest-button"
           type="button"
-          onClick={onGuestLogin}
+          onClick={async () => {
+            const result = await onGuestLogin()
+            if (result) setError(result)
+          }}
         >
           Continue as guest
         </button>
