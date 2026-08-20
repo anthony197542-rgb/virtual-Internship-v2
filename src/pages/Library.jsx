@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { FiBookmark, FiChevronRight } from 'react-icons/fi'
 import BookCard from '../components/BookCard'
 
-function Library({ books }) {
+function Library({ books, finishedBooks = [] }) {
   const savedBooks = books || []
 
   return (
@@ -29,6 +29,21 @@ function Library({ books }) {
           </Link>
         </div>
       )}
+
+      <section className="shelf">
+        <div className="shelf-title">
+          <h2>Finished books</h2>
+        </div>
+        {finishedBooks.length > 0 ? (
+          <div className="library-grid">
+            {finishedBooks.map((book) => (
+              <BookCard book={book} key={book.id} />
+            ))}
+          </div>
+        ) : (
+          <p className="empty-copy">Books you finish listening to will appear here.</p>
+        )}
+      </section>
     </main>
   )
 }

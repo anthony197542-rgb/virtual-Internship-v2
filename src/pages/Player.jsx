@@ -13,7 +13,7 @@ const fallbackBook = {
   audioLink: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
 }
 
-function Player() {
+function Player({ onFinished }) {
   const { id } = useParams()
   const audioRef = useRef(null)
   const [book, setBook] = useState(null)
@@ -130,7 +130,10 @@ function Player() {
             setCurrentTime(audio.currentTime)
             setProgress(audio.duration ? (audio.currentTime / audio.duration) * 100 : 0)
           }}
-          onEnded={() => setPlaying(false)}
+          onEnded={() => {
+            setPlaying(false)
+            onFinished(book)
+          }}
         />
 
         <div className="player-summary">

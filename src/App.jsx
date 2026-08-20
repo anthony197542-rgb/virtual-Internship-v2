@@ -18,12 +18,17 @@ import { loginAsGuest, loginWithEmail, logout, registerWithEmail, watchAuth } fr
 function App() {
   const [authOpen, setAuthOpen] = useState(false)
   const [library, setLibrary] = useState(() => readLibrary())
+  const [finishedBooks, setFinishedBooks] = useState(() => readFinishedBooks())
   const [user, setUser] = useState(() => readUser())
   const [subscription, setSubscription] = useState(() => localStorage.getItem('summarist-plan') || 'basic')
 
   useEffect(() => {
     localStorage.setItem('summarist-library', JSON.stringify(library))
   }, [library])
+
+  useEffect(() => {
+    localStorage.setItem('summarist-finished', JSON.stringify(finishedBooks))
+  }, [finishedBooks])
 
   useEffect(() => watchAuth((firebaseUser) => {
     if (!firebaseUser) {
@@ -46,6 +51,12 @@ function App() {
       : [...current, book])
   }
 
+  const addFinishedBook = (book) => {
+    setFinishedBooks((current) => current.some((item) => item.id === book.id)
+      ? current
+      : [...current, book])
+  }
+
   const handleLogin = async ({ email, password, mode }) => {
     try {
       if (firebaseConfigured) {
@@ -57,6 +68,7 @@ function App() {
         localStorage.setItem('summarist-user', JSON.stringify(nextUser))
       }
       setAuthOpen(false)
+      window.location.assign('/for-you')
       return ''
     } catch (error) {
       return getAuthError(error)
@@ -72,6 +84,7 @@ function App() {
         localStorage.setItem('summarist-user', JSON.stringify(guest))
       }
       setAuthOpen(false)
+      window.location.assign('/for-you')
       return ''
     } catch (error) {
       return getAuthError(error)
@@ -103,8 +116,8 @@ function App() {
             path="/book/:id"
             element={<Book user={user} subscription={subscription} onLogin={() => setAuthOpen(true)} library={library} onToggleLibrary={toggleLibrary} />}
           />
-          <Route path="/player/:id" element={<Player />} />
-          <Route path="/library" element={<Library books={library} />} />
+          <Route path="/player/:id" element={<Player onFinished={addFinishedBook} />} />
+          <Route path="/library" element={<Library books={library} finishedBooks={finishedBooks} />} />
           <Route path="/search" element={<Search />} />
           <Route path="/settings" element={<Settings user={user} subscription={subscription} onLogin={() => setAuthOpen(true)} />} />
         </Route>
@@ -134,6 +147,14 @@ function readUser() {
     return JSON.parse(localStorage.getItem('summarist-user'))
   } catch {
     return null
+  }
+}
+
+function readFinishedBooks() {
+  try {
+    return JSON.parse(localStorage.getItem('summarist-finished')) || []
+  } catch {
+    return []
   }
 }
 
