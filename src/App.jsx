@@ -13,7 +13,8 @@ import './App.css'
 import Header from './components/Header'
 import Library from './pages/Library'
 import { firebaseConfigured } from './services/firebase'
-import { loginAsGuest, loginWithEmail, logout, registerWithEmail, watchAuth } from './services/auth'
+import { loginAsGuest, loginWithEmail, loginWithGoogle, logout, registerWithEmail, resetPassword, watchAuth } from './services/auth'
+import { loadCloudLibrary, removeCloudBook, saveCloudBook } from './services/library'
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false)
@@ -38,17 +39,30 @@ function App() {
     }
 
     const nextUser = {
+      uid: firebaseUser.uid,
       email: firebaseUser.email || 'guest account',
       name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Guest User',
     }
     setUser(nextUser)
     localStorage.setItem('summarist-user', JSON.stringify(nextUser))
+    loadCloudLibrary(firebaseUser.uid).then((cloudBooks) => {
+      if (cloudBooks.length > 0) setLibrary(cloudBooks)
+    })
   }), [])
 
   const toggleLibrary = (book) => {
-    setLibrary((current) => current.some((item) => item.id === book.id)
-      ? current.filter((item) => item.id !== book.id)
-      : [...current, book])
+    setLibrary((current) => {
+      const exists = current.some((item) => item.id === book.id)
+      const next = exists
+        ? current.filter((item) => item.id !== book.id)
+        : [...current, book]
+      const uid = user?.uid
+      if (uid) {
+        if (exists) removeCloudBook(uid, book.id)
+        else saveCloudBook(uid, book)
+      }
+      return next
+    })
   }
 
   const addFinishedBook = (book) => {
@@ -85,6 +99,26 @@ function App() {
       }
       setAuthOpen(false)
       window.location.assign('/for-you')
+      return ''
+    } catch (error) {
+      return getAuthError(error)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle()
+      setAuthOpen(false)
+      window.location.assign('/for-you')
+      return ''
+    } catch (error) {
+      return getAuthError(error)
+    }
+  }
+
+  const handlePasswordReset = async (email) => {
+    try {
+      await resetPassword(email)
       return ''
     } catch (error) {
       return getAuthError(error)
@@ -128,6 +162,8 @@ function App() {
           onClose={() => setAuthOpen(false)}
           onSubmit={handleLogin}
           onGuestLogin={handleGuestLogin}
+          onGoogleLogin={handleGoogleLogin}
+          onPasswordReset={handlePasswordReset}
         />
       )}
     </BrowserRouter>

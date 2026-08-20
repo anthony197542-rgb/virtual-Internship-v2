@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { FiX } from 'react-icons/fi'
 
-function AuthModal({ onClose, onSubmit, onGuestLogin }) {
+function AuthModal({ onClose, onSubmit, onGuestLogin, onGoogleLogin, onPasswordReset }) {
   const [mode, setMode] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [resetSent, setResetSent] = useState(false)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -35,6 +36,16 @@ function AuthModal({ onClose, onSubmit, onGuestLogin }) {
       currentMode === 'login' ? 'register' : 'login'
     ))
     setError('')
+  }
+
+  const handleReset = async () => {
+    if (!email.includes('@')) {
+      setError('Enter your email first to reset your password.')
+      return
+    }
+    const result = await onPasswordReset(email)
+    if (result) setError(result)
+    else setResetSent(true)
   }
 
   return (
@@ -96,12 +107,27 @@ function AuthModal({ onClose, onSubmit, onGuestLogin }) {
             </div>
           )}
 
+          {resetSent && <div className="form-success">Password reset email sent.</div>}
+
           <button className="form-button" type="submit">
             {mode === 'login'
               ? 'Log in'
               : 'Create account'}
           </button>
         </form>
+
+        {mode === 'login' && (
+          <button className="text-button" type="button" onClick={handleReset}>
+            Forgot password?
+          </button>
+        )}
+
+        <button className="guest-button" type="button" onClick={async () => {
+          const result = await onGoogleLogin()
+          if (result) setError(result)
+        }}>
+          Continue with Google
+        </button>
 
         <button
           className="guest-button"
