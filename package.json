@@ -1,0 +1,10 @@
+{
+  "name": "summarist-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix summarist-next run dev",
+    "build": "npm --prefix summarist-next run build",
+    "start": "npm --prefix summarist-next run start",
+    "lint": "npm --prefix summarist-next run lint"
+  }
+}
