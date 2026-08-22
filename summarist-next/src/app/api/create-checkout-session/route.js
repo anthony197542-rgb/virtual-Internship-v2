@@ -3,7 +3,10 @@ import { NextResponse } from "next/server";
 
 export async function POST(request) {
   if (!process.env.STRIPE_SECRET_KEY) {
-    return NextResponse.json({ error: "Stripe is not configured. Add STRIPE_SECRET_KEY to .env.local." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Stripe configuration is missing." },
+      { status: 500 }
+    );
   }
 
   try {
